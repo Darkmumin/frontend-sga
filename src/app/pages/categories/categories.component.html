@@ -11,6 +11,11 @@
     </ng-template>
 </p-toolbar>
 
+<!-- Loading Spinner -->
+<div *ngIf="isLoading()" class="flex justify-center items-center p-6">
+    <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" animationDuration=".15s" />
+</div>
+
 <p-table
     #dt
     [value]="categories()"
@@ -63,8 +68,20 @@
             <td style="min-width: 4rem">{{ category.id }}</td>
             <td style="min-width: 22rem">{{ category.description }}</td>
             <td>
-                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="updateCategory(category)" />
-                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteCategory(category)" />
+                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (onClick)="updateCategory(category)" />
+                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteCategory(category)" />
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+        <tr>
+            <td colspan="4" class="text-center">
+                <div *ngIf="isLoading()" class="flex justify-center items-center p-6">
+                    <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" animationDuration=".15s" />
+                </div>
+                <div *ngIf="!isLoading() && categories().length === 0" class="text-gray-500">
+                    No categories found.
+                </div>
             </td>
         </tr>
     </ng-template>
@@ -83,8 +100,8 @@
     </ng-template>
 
     <ng-template #footer>
-        <p-button label="Cancel" [raised]="true" severity="danger" icon="pi pi-times" (click)="hideDialog()" />
-        <p-button label="Save" [raised]="true" severity="success" icon="pi pi-check" (click)="saveCategory()"/>
+        <p-button label="Cancel" [raised]="true" severity="danger" icon="pi pi-times" (onClick)="hideDialog()" />
+        <p-button label="Save" [raised]="true" severity="success" icon="pi pi-check" (onClick)="saveCategory()"/>
     </ng-template>
 </p-dialog>
 

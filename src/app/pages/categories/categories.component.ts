@@ -20,6 +20,7 @@ import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { CategoryService } from '../../services/category.service';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 interface Column {
   field: string;
@@ -55,6 +56,7 @@ interface ExportColumn {
     InputNumberModule,
     ConfirmDialogModule,
     ReactiveFormsModule,
+    ProgressSpinner
   ],
   templateUrl: './categories.component.html',
   styleUrls: ['./categories.component.css']
@@ -63,6 +65,8 @@ export class CategoriesComponent implements OnInit {
     categoryDialog: boolean = false;
 
     categories = signal<Category[]>([]);
+
+    isLoading = signal<boolean>(false);
 
     category!: Category;
 
@@ -78,9 +82,13 @@ export class CategoriesComponent implements OnInit {
 
     action: string = '';
 
-    exportColumns!: ExportColumn[];
+    cols: Column[] = [
+        { field: 'id', header: 'Id' },
+        { field: 'description', header: 'Description' },
+    ];
 
-    cols!: Column[];
+    exportColumns: ExportColumn[] = [];
+
 
     constructor(
         private categoryService: CategoryService,
@@ -101,12 +109,19 @@ export class CategoriesComponent implements OnInit {
     }
 
     loadData() {
-        this.categoryService.getCategories().subscribe(data => {
-            this.categories.set(data.content);
+        this.isLoading.set(true); // Set loading to true
+        this.categoryService.getCategories().subscribe({
+          next: (data) => {
+            this.categories.set(data); // Set all categories
+            this.isLoading.set(false); // Set loading to false
+            this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field}));
+          },
+          error: (error) => {
+            console.error('Error loading categories:', error);
+            this.isLoading.set(false); // Set loading to false in case of error
+          },
         });
-
-        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-    }
+      }
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
@@ -119,9 +134,9 @@ export class CategoriesComponent implements OnInit {
     }
 
     updateCategory(category: Category) {
-        this.categoryDialog = true;
         this.action = 'Update';
         this.submitted = false;
+        this.categoryDialog = true;
         this.category = category;
         this.form.get('description')?.setValue(category.description);
     }

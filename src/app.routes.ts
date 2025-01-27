@@ -5,8 +5,14 @@ import { Documentation } from './app/pages/documentation/documentation';
 import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { CategoriesComponent } from './app/pages/categories/categories.component';
+import { AccessGuard } from './app/config/accessGuard';
+import { LoginComponent } from './app/login/login.component';
 
 export const appRoutes: Routes = [
+    {
+        path: 'login',
+        component: LoginComponent
+    },
     {
         path: '',
         component: AppLayout,
@@ -14,7 +20,7 @@ export const appRoutes: Routes = [
             { path: '', component: Dashboard },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
-            { path: 'categories', component: CategoriesComponent }
+            { path: 'categories', component: CategoriesComponent, canActivate: [AccessGuard] }
         ]
     },
     { path: 'landing', component: Landing },
