@@ -7,6 +7,7 @@ import { Notfound } from './app/pages/notfound/notfound';
 import { CategoriesComponent } from './app/pages/categories/categories.component';
 import { AccessGuard } from './app/config/accessGuard';
 import { LoginComponent } from './app/login/login.component';
+import { AssetsComponent } from './app/pages/assets/assets.component';
 
 export const appRoutes: Routes = [
     {
@@ -20,8 +21,10 @@ export const appRoutes: Routes = [
             { path: '', component: Dashboard },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
-            { path: 'categories', component: CategoriesComponent, canActivate: [AccessGuard] }
-        ]
+            { path: 'categories', component: CategoriesComponent, canActivate: [AccessGuard] },
+            { path: 'assets', component: AssetsComponent, canActivate: [AccessGuard] },
+        ],
+        canActivate: [AccessGuard]
     },
     { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },

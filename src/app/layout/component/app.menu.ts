@@ -27,7 +27,8 @@ export class AppMenu {
             {
                 label: 'UI Components',
                 items: [
-                    { label: 'Categories', icon: 'pi pi-fw pi-id-card', routerLink: ['/categories'] }
+                    { label: 'Categories', icon: 'pi pi-fw pi-id-card', routerLink: ['/categories'] },
+                    { label: 'Assets', icon: 'pi pi-fw pi-briefcase', routerLink: ['/assets'] }
                 ]
             },
         ];

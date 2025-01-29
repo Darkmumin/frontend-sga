@@ -111,17 +111,17 @@ export class CategoriesComponent implements OnInit {
     loadData() {
         this.isLoading.set(true); // Set loading to true
         this.categoryService.getCategories().subscribe({
-          next: (data) => {
-            this.categories.set(data); // Set all categories
-            this.isLoading.set(false); // Set loading to false
-            this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field}));
-          },
-          error: (error) => {
-            console.error('Error loading categories:', error);
-            this.isLoading.set(false); // Set loading to false in case of error
-          },
+            next: (data) => {
+                this.categories.set(data); // Set all categories
+                this.isLoading.set(false); // Set loading to false
+                this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field}));
+            },
+            error: (error) => {
+                console.error('Error loading categories:', error);
+                this.isLoading.set(false); // Set loading to false in case of error
+            },
         });
-      }
+    }
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');

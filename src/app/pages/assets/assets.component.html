@@ -1,0 +1,171 @@
+<!-- Date: 2024/01/27 -->
+<p-toast />
+<p-toolbar styleClass="mb-6">
+    <ng-template #start>
+        <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+        <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deletedSelectedAssets()"/>
+    </ng-template>
+
+    <ng-template #end>
+        <p-button label="Export CSV" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
+    </ng-template>
+</p-toolbar>
+
+<!-- Loading Spinner -->
+<div *ngIf="isLoading()" class="flex justify-center items-center p-6">
+    <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" animationDuration=".15s" />
+</div>
+
+<p-table
+    #dt
+    [value]="assets()"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [responsive]="true"	
+    [resizableColumns]="true"
+    [globalFilterFields]="['description', 'id', 'brand', 'model', 'categoryId', 'name', 'serialNumber', 'assignmentState']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedAssets"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} categories"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30, 40]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Assets Manager</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="width: 2rem">
+              <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="id" style="min-width: 4rem">
+              Id
+              <p-sortIcon field="id"/>
+            </th>
+            <th pSortableColumn="name" style="min-width: 4rem">
+              Name
+              <p-sortIcon field="name"/>
+            </th>
+            <th pSortableColumn="brand" style="min-width: 4rem">
+              Brand
+              <p-sortIcon field="brand"/>
+            </th>
+            <th pSortableColumn="model" style="min-width: 4rem">
+              Model
+              <p-sortIcon field="model"/>
+            </th>
+            <th pSortableColumn="category" style="min-width: 10rem">
+              Category
+              <p-sortIcon field="category"/>
+            </th>
+            <th pSortableColumn="serialNumber" style="min-width: 10rem">
+              Serial Number
+              <p-sortIcon field="serialNumber"/>
+            </th>
+            <th pSortableColumn="assignmentState" style="min-width: 4rem">
+              Assignment State
+              <p-sortIcon field="assignmentState"/>
+            </th>
+            <th pSortableColumn="inventoryCode" style="min-width: 8rem">
+              Inventory Code
+              <p-sortIcon field="inventoryCode"/>
+            </th>
+            <th pSortableColumn="description" style="min-width: 10rem">
+              Description
+              <p-sortIcon field="description"/>
+            </th>
+             <th pSortableColumn="inventoryStatus" style="min-width: 6rem">
+                Operations
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-asset>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="asset" />
+            </td>
+            <td style="min-width: 3rem">{{ asset.id }}</td>
+            <td style="min-width: 6rem">{{ asset.name }}</td>
+            <td style="min-width: 6rem">{{ asset.brand }}</td>
+            <td style="min-width: 9rem">{{ asset.model }}</td>
+            <td style="min-width: 8rem">{{ asset.category.description }}</td>
+            <td style="min-width: 6rem">{{ asset.serialNumber }}</td>
+            <td style="min-width: 4rem">{{ asset.assignmentState }}</td>
+            <td style="min-width: 8rem">{{ asset.inventoryCode }}</td>
+            <td style="min-width: 8rem">{{ asset.description }}</td>
+            <td>
+                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (onClick)="updateAsset(asset)" />
+                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteAsset(asset)" />
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+        <tr>
+            <td colspan="4" class="text-center">
+                <div *ngIf="isLoading()" class="flex justify-center items-center p-6">
+                    <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" animationDuration=".15s" />
+                </div>
+                <div *ngIf="!isLoading() && assets().length === 0" class="text-gray-500">
+                    No categories found.
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="assetDialog" [style]="{ width: '450px' }" [header]= "action + ' asset'" [modal]="true">
+    <ng-template #content>
+        <form [formGroup]="form" class="p-fluid" >
+            <div class="flex flex-col gap-6">
+                <div>
+                  <label for="name" class="block font-bold mb-3">Name</label>
+                  <textarea id="name" pTextarea required rows="1" cols="20" formControlName="name" required autofocus fluid></textarea>
+               </div>
+               <div>
+                <label for="brand" class="block font-bold mb-3">Brand</label>
+                <textarea id="brand" pTextarea required rows="1" cols="20" formControlName="brand" required autofocus fluid></textarea>
+              </div>
+              <div>
+                <label for="model" class="block font-bold mb-3">Model</label>
+                <textarea id="model" pTextarea required rows="1" cols="20" formControlName="model" required autofocus fluid></textarea>
+              </div>
+                <label for="category" class="block font-bold mb-3">Category</label>
+                <p-select formControlName="category" optionLabel="description" [options]="categories" placeholder="Select"/>
+              <div>
+                <label for="serialNumber" class="block font-bold mb-3">Serial Number</label>
+                <textarea id="serialNumber" pTextarea required rows="1" cols="20" formControlName="serialNumber" required autofocus fluid></textarea>
+              </div>
+              <div class="font-semibold text-xl">Assignment State</div>
+              <p-toggleswitch formControlName="assignment">
+                <ng-template #handle let-checked="checked">
+                  <i [ngClass]="['!text-xs', 'pi', checked ? 'pi-check' : 'pi-times']"></i>
+                </ng-template>
+              </p-toggleswitch>
+              <div>
+                <label for="inventoryCode" class="block font-bold mb-3">Asset Inventory Code</label>
+                <textarea id="inventoryCode" pTextarea required rows="1" cols="20" formControlName="inventoryCode" required autofocus fluid></textarea>
+              </div>
+              <div>
+                <label for="description" class="block font-bold mb-3">Asset Description</label>
+                <textarea id="description" pTextarea required rows="3" cols="20" formControlName="description" required autofocus fluid></textarea>
+              </div>
+           </div>
+        </form>
+    </ng-template>
+
+    <ng-template #footer>
+        <p-button label="Cancel" [raised]="true" severity="danger" icon="pi pi-times" (onClick)="hideDialog()" />
+        <p-button label="Save" [raised]="true" severity="success" icon="pi pi-check" (onClick)="saveAsset()"/>
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />
